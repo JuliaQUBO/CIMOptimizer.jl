@@ -90,7 +90,7 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
     end
 
     if MOI.get(sampler, MOI.TimeLimitSec()) !== nothing
-        MOI.get(sampler, MOI.RawOptimizerAttribute("max_wallclock_time_allowed"), MOI.get(sampler, MOI.TimeLimitSec()))
+        MOI.set(sampler, MOI.RawOptimizerAttribute("max_wallclock_time_allowed"), MOI.get(sampler, MOI.TimeLimitSec()))
     end
 
     solver = model.solve(;
