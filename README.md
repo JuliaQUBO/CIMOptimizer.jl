@@ -1,4 +1,4 @@
-# CoherentIsingMachine.jl
+# CIMOptimizer.jl
 [cim-optimizer](https://github.com/mcmahon-lab/cim-optimizer) Coherent Ising Machine wrapper for JuMP
 
 <!-- [![DOI](https://zenodo.org/badge/621844685.svg)](https://zenodo.org/badge/latestdoi/621844685) -->
@@ -6,18 +6,16 @@
 
 ## Installation
 ```julia
-julia> import Pkg; Pkg.add(url="https://github.com/pedromxavier/CoherentIsingMachine.jl")
+julia> import Pkg; Pkg.add(url="https://github.com/pedromxavier/CIMOptimizer.jl")
 
-julia> using CoherentIsingMachine
-
-julia> const CIM = CoherentIsingMachine
+julia> using CIMOptimizer
 ```
 
 ## Getting started
 ```julia
 using JuMP
-using CoherentIsingMachine
-const CIM = CoherentIsingMachine
+using CIMOptimizer
+const CIM = CIMOptimizer
 
 model = Model(CIM.Optimizer)
 

@@ -1,4 +1,4 @@
-module CoherentIsingMachine
+module CIMOptimizer
 
 using PythonCall
 using LinearAlgebra
