@@ -20,7 +20,7 @@ QUBODrivers.@setup Optimizer begin
     domain = :spin
     version = v"1.0.4" # cim-optimizer version
     attributes = begin
-        # ?
+        NumberOfRuns["num_runs"]::Integer = 1
     end
 end
 
@@ -34,11 +34,13 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
 
     model = co_si.Ising(J, h)
 
-    solver = model.solve(;
-        # Parameters go here
-    )
+    # Retrieve attributes
+    num_runs = MOI.get(sampler, NumberOfRuns())
 
-    num_runs = pyconvert(Int, solver.num_runs)
+    solver = model.solve(;
+        num_runs            = num_runs,
+        suppress_statements = MOI.get(sampler, MOI.Silent()),
+    )
 
     samples = Vector{Sample{T,Int}}(undef, num_runs)
 
