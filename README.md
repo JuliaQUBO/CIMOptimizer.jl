@@ -2,11 +2,11 @@
 [cim-optimizer](https://github.com/mcmahon-lab/cim-optimizer) Coherent Ising Machine wrapper for JuMP
 
 [![DOI](https://zenodo.org/badge/651328206.svg)](https://zenodo.org/badge/latestdoi/651328206)
-[![QUBODRIVERS](https://img.shields.io/badge/Powered%20by-QUBODrivers.jl-%20%234063d8)](https://github.com/psrenergy/QUBODrivers.jl)
+[![QUBODRIVERS](https://img.shields.io/badge/Powered%20by-QUBODrivers.jl-%20%234063d8)](https://github.com/JuliaQUBO/QUBODrivers.jl)
 
 ## Installation
 ```julia
-julia> import Pkg; Pkg.add(url="https://github.com/pedromxavier/CIMOptimizer.jl")
+julia> import Pkg; Pkg.add(url="https://github.com/JuliaQUBO/CIMOptimizer.jl")
 
 julia> using CIMOptimizer
 ```
