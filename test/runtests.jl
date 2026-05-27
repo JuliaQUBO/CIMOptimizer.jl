@@ -14,6 +14,20 @@ using CIMOptimizer: CIMOptimizer, MOI, QUBODrivers
     @test !haskey(pip_deps, "torch")
 end
 
+@testset "Julia support policy" begin
+    project = TOML.parsefile(joinpath(pkgdir(CIMOptimizer), "Project.toml"))
+    compat = project["compat"]
+
+    @test compat["julia"] == "1.10"
+    @test compat["QUBODrivers"] == "0.4"
+
+    ci = read(joinpath(pkgdir(CIMOptimizer), ".github", "workflows", "ci.yml"), String)
+    ci_versions = Set(m.captures[1] for m in eachmatch(r"version:\s*'([^']+)'", ci))
+
+    @test compat["julia"] in ci_versions
+    @test "1" in ci_versions
+end
+
 @testset "QUBODrivers interface" begin
     QUBODrivers.test(CIMOptimizer.Optimizer; examples=true) do model
         MOI.set(model, MOI.Silent(), true)
