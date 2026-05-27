@@ -2,7 +2,7 @@ module CIMOptimizer
 
 using PythonCall
 using LinearAlgebra
-using QUBODrivers: QUBODrivers, QUBOTools, MOI, Sample, SampleSet, ising
+using QUBODrivers: QUBODrivers, QUBOTools, MOI, Sample, SampleSet
 
 const np = PythonCall.pynew()
 const co = PythonCall.pynew()
@@ -18,8 +18,6 @@ end
 
 QUBODrivers.@setup Optimizer begin
     name = "cim-optimizer"
-    sense = :min
-    domain = :spin
     version = v"1.0.4" # cim-optimizer version
     attributes = begin
         "target_energy"::Number = -Inf                                  # Assumed target/ground energy for the solver to reach, used to stop before num_runs runs have been completed.
@@ -73,12 +71,12 @@ QUBODrivers.@setup Optimizer begin
 end
 
 function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
-    h, J, α, β = ising(sampler, Matrix)
+    _, h, J, α, β, _, _ = QUBOTools.ising(sampler, :dense; sense = :min)
 
-    # cim-optimzier asks for symmetric 'J', and its convention
+    # cim-optimizer asks for symmetric 'J', and its convention
     # is to min -s'J s -h's
     h = np.array(-h)
-    J = np.array(-Symmetric(J))
+    J = np.array(-Matrix(Symmetric(J)))
 
     model = co_si.Ising(J, h)
 
@@ -146,7 +144,8 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
     samples = Vector{Sample{T,Int}}(undef, num_runs)
 
     for i = 1:num_runs
-        ψ = round.(Int, pyconvert.(T, solver.result["spin_config_all_runs"][i-1]))
+        spin_config = np.asarray(solver.result["spin_config_all_runs"][i-1]).reshape(-1).tolist()
+        ψ = round.(Int, pyconvert(Vector{T}, spin_config))
         λ = α * (pyconvert(T, solver.result["energies"][i-1]) + β)
 
         samples[i] = Sample{T}(ψ, λ)
@@ -159,7 +158,7 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
         ),
     )
 
-    return SampleSet{T}(samples, metadata)
+    return SampleSet{T}(samples, metadata; sense = :min, domain = :spin)
 end
 
 end # module CoherentIsingMachine
