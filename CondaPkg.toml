@@ -1,9 +1,9 @@
-channels = ["anaconda", "conda-forge"]
+channels = ["conda-forge", "anaconda"]
 
 [deps]
 python = ">=3.8,<3.11"
+numpy = ">=1.20.0"
+pytorch-cpu = ">=2.0.1"
 
 [pip.deps]
-numpy          = ">=1.20.0"
-torch          = ">=2.0.1"
-cim-optimizer  = "==1.0.4"
+cim-optimizer = "==1.0.4"
