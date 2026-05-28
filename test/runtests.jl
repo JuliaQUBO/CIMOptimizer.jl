@@ -4,6 +4,12 @@ using Test
 
 using CIMOptimizer: CIMOptimizer, MOI, QUBODrivers
 
+@testset "Package metadata" begin
+    project = TOML.parsefile(joinpath(pkgdir(CIMOptimizer), "Project.toml"))
+
+    @test "David E. Bernal Neira <dbernaln@purdue.edu>" in project["authors"]
+end
+
 @testset "Dependencies" begin
     @test !any(dep -> dep.name == "Anneal", values(Pkg.dependencies()))
 
