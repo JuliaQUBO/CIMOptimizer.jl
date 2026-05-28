@@ -1,7 +1,7 @@
 name = "CIMOptimizer"
 uuid = "f763a312-2f8b-4ea4-ad8b-371148ce3a7b"
 authors = ["pedromxavier <pedrox@cos.ufrj.br>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
