@@ -19,7 +19,7 @@ end
     compat = project["compat"]
 
     @test compat["julia"] == "1.10"
-    @test compat["QUBODrivers"] == "0.4"
+    @test compat["QUBODrivers"] == "0.4, 0.5"
 
     ci = read(joinpath(pkgdir(CIMOptimizer), ".github", "workflows", "ci.yml"), String)
     ci_versions = Set(m.captures[1] for m in eachmatch(r"version:\s*'([^']+)'", ci))
