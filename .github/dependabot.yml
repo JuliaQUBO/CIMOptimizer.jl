@@ -1,0 +1,18 @@
+version: 2
+# This same-repository Dependabot setup does not require a PAT or new repository
+# secret. Use a PAT only for future cross-repository automation that the default
+# GITHUB_TOKEN cannot access.
+updates:
+  - package-ecosystem: "julia"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      root-julia-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
