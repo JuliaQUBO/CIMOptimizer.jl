@@ -34,6 +34,18 @@ end
     @test "1" in ci_versions
 end
 
+@testset "Dependency maintenance policy" begin
+    config = read(joinpath(pkgdir(CIMOptimizer), ".github", "dependabot.yml"), String)
+    normalized = replace(config, r"\s+" => " ")
+    workflows = readdir(joinpath(pkgdir(CIMOptimizer), ".github", "workflows"))
+
+    @test occursin("version: 2", config)
+    @test occursin("""package-ecosystem: "julia" directory: "/" """, normalized)
+    @test occursin("""package-ecosystem: "github-actions" directory: "/" """, normalized)
+    @test occursin("root-julia-dependencies", config)
+    @test !any(workflow -> occursin("compathelper", lowercase(workflow)), workflows)
+end
+
 @testset "QUBODrivers interface" begin
     QUBODrivers.test(CIMOptimizer.Optimizer; examples=true) do model
         MOI.set(model, MOI.Silent(), true)
