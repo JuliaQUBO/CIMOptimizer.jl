@@ -28,10 +28,21 @@ end
     @test compat["QUBODrivers"] == "0.5"
 
     ci = read(joinpath(pkgdir(CIMOptimizer), ".github", "workflows", "ci.yml"), String)
+    normalized_ci = replace(ci, "\r\n" => "\n")
     ci_versions = Set(m.captures[1] for m in eachmatch(r"version:\s*'([^']+)'", ci))
 
     @test compat["julia"] in ci_versions
     @test "1" in ci_versions
+
+    setup = findfirst("julia-actions/setup-julia@v3", ci)
+    cache = findfirst("julia-actions/cache@v3", ci)
+    buildpkg = findfirst("julia-actions/julia-buildpkg@v1", ci)
+
+    @test setup !== nothing
+    @test cache !== nothing
+    @test buildpkg !== nothing
+    @test last(setup) < first(cache) < first(buildpkg)
+    @test occursin(r"(?m)^permissions:\n\s+actions:\s*write\n\s+contents:\s*read", normalized_ci)
 end
 
 @testset "Dependency maintenance policy" begin
