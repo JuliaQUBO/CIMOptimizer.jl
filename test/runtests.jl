@@ -32,6 +32,15 @@ end
 
     @test compat["julia"] in ci_versions
     @test "1" in ci_versions
+
+    setup = findfirst("julia-actions/setup-julia@v3", ci)
+    cache = findfirst("julia-actions/cache@v3", ci)
+    buildpkg = findfirst("julia-actions/julia-buildpkg@v1", ci)
+
+    @test setup !== nothing
+    @test cache !== nothing
+    @test buildpkg !== nothing
+    @test last(setup) < first(cache) < first(buildpkg)
 end
 
 @testset "Dependency maintenance policy" begin
