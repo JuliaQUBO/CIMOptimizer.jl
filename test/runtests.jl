@@ -41,6 +41,7 @@ end
     @test cache !== nothing
     @test buildpkg !== nothing
     @test last(setup) < first(cache) < first(buildpkg)
+    @test occursin(r"(?m)^permissions:\n\s+actions:\s*write\n\s+contents:\s*read", ci)
 end
 
 @testset "Dependency maintenance policy" begin
