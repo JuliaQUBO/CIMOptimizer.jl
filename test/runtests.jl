@@ -25,7 +25,7 @@ end
     compat = project["compat"]
 
     @test compat["julia"] == "1.10"
-    @test compat["QUBODrivers"] == "0.5"
+    @test compat["QUBODrivers"] == "0.5, 0.6"
 
     ci = read(joinpath(pkgdir(CIMOptimizer), ".github", "workflows", "ci.yml"), String)
     normalized_ci = replace(ci, "\r\n" => "\n")
