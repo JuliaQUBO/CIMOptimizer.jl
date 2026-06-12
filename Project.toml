@@ -1,7 +1,7 @@
 name = "CIMOptimizer"
 uuid = "f763a312-2f8b-4ea4-ad8b-371148ce3a7b"
 authors = ["pedromxavier <pedrox@cos.ufrj.br>", "David E. Bernal Neira <dbernaln@purdue.edu>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
