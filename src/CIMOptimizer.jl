@@ -117,7 +117,7 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
         MOI.set(sampler, MOI.RawOptimizerAttribute("max_wallclock_time_allowed"), MOI.get(sampler, MOI.TimeLimitSec()))
     end
 
-    solver = model.solve(;
+    solve_results = @timed model.solve(;
         target_energy                                   = MOI.get(sampler, MOI.RawOptimizerAttribute("target_energy")),
         num_runs                                        = MOI.get(sampler, NumberOfRuns()),
         num_timesteps_per_run                           = MOI.get(sampler, MOI.RawOptimizerAttribute("num_timesteps_per_run")),
@@ -166,6 +166,7 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
         use_CAC                                         = MOI.get(sampler, MOI.RawOptimizerAttribute("use_CAC")),
         chosen_device                                   = something(MOI.get(sampler, MOI.RawOptimizerAttribute("chosen_device")), torch.device("cpu")),
     )
+    solver = solve_results.value
 
     samples = Vector{Sample{T,Int}}(undef, num_samples)
 
@@ -177,7 +178,9 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
         samples[i] = Sample{T}(ψ, λ)
     end
 
-    effective_time = pyconvert(Float64, solver.result["time"])
+    python_solve_time = pyconvert(Float64, solver.result["time"])
+    julia_solve_time = solve_results.time
+    effective_time = min(python_solve_time, julia_solve_time)
     metadata = QUBODrivers._sampler_metadata(
         origin                = "CIMOptimizer.jl",
         algorithm_name        = "Coherent Ising Machine",
@@ -193,7 +196,10 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
     )
     metadata["time"] = Dict{String,Any}("effective" => effective_time)
     metadata["cim_optimizer"] = Dict{String,Any}(
-        "time" => Dict{String,Any}("python_solve" => effective_time),
+        "time" => Dict{String,Any}(
+            "python_solve" => python_solve_time,
+            "julia_solve_call" => julia_solve_time,
+        ),
     )
 
     return SampleSet{T}(samples, metadata; sense = :min, domain = :spin)
