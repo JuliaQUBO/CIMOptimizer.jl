@@ -2,14 +2,34 @@ module CIMOptimizer
 
 using PythonCall
 using LinearAlgebra
+using Libdl
 using QUBODrivers: QUBODrivers, QUBOTools, MOI, Sample, SampleSet
 
 const np = PythonCall.pynew()
 const co = PythonCall.pynew()
 const co_si = PythonCall.pynew()
 const torch = PythonCall.pynew()
+const _preloaded_libraries = Ptr{Nothing}[]
+
+function _preload_python_env_libraries()
+    Sys.islinux() || return nothing
+
+    prefix = pyconvert(String, pyimport("sys").prefix)
+    libdir = joinpath(prefix, "lib")
+
+    for lib in ("libmkl_core.so.3", "libmkl_gnu_thread.so.3", "libmkl_intel_lp64.so.3")
+        path = joinpath(libdir, lib)
+        isfile(path) || continue
+
+        handle = Libdl.dlopen(path, Libdl.RTLD_LAZY | Libdl.RTLD_GLOBAL)
+        push!(_preloaded_libraries, handle)
+    end
+
+    return nothing
+end
 
 function __init__()
+    _preload_python_env_libraries()
     PythonCall.pycopy!(np, pyimport("numpy"))
     PythonCall.pycopy!(co, pyimport("cim_optimizer"))
     PythonCall.pycopy!(co_si, pyimport("cim_optimizer.solve_Ising"))
@@ -21,9 +41,9 @@ QUBODrivers.@setup Optimizer begin
     version = v"1.0.4" # cim-optimizer version
     attributes = begin
         "target_energy"::Number = -Inf                                  # Assumed target/ground energy for the solver to reach, used to stop before num_runs runs have been completed.
-        "num_runs"::Integer = 1                                         # Maximum number of runs to attempt by the CIM, either running the set repeated number of repetitions or stopping if the target energy is met.
+        NumberOfRuns["num_runs"]::Integer = 1                           # Maximum number of runs to attempt by the CIM, either running the set repeated number of repetitions or stopping if the target energy is met.
         "num_timesteps_per_run"::Integer = 1_000                        # Roundtrip number per run, representing the number of MVM’s per run.
-        "max_wallclock_time_allowed"::Integer = 10_000_000              # Seconds passed by the CIM before quitting if num_runs or target_energy have not been met.
+        MaxWallclockTimeAllowed["max_wallclock_time_allowed"]::Real = 10_000_000.0 # Seconds before quitting if num_runs or target_energy have not been met.
         "stop_when_target_energy_reached"::Bool = true                  # Stop if target energy reached before completing all the CIM runs.
         "custom_feedback_schedule"::Any = nothing                       # Option to specify a custom function or array of length num_timesteps_per_run to use as a feedback schedule.
         "custom_pump_schedule"::Any = nothing                           # Option to specify a custom function or array of length num_timesteps_per_run to use as a pump schedule.
@@ -62,13 +82,17 @@ QUBODrivers.@setup Optimizer begin
         "return_lowest_energies_found_spin_configuration"::Bool = false # Return a vector where for each run, it gives the spin configuration that was found during that run that had the lowest energy.
         "return_lowest_energy_found_from_each_run"::Bool = true         # Return a vector with the lowest energy found for each run.
         "return_spin_trajectories_all_runs"::Bool = true                # Return the Ising spin trajectory for every run.
-        "return_number_of_solutions"::Integer = 1_000                   # Number of best solutions to return; must be <= num_runs.
+        ReturnNumberOfSolutions["return_number_of_solutions"]::Integer = 1_000 # Number of best solutions to return; must be <= num_runs.
         "suppress_statements"::Bool = false                             # Print details of each solver call to screen/REPL.
         "use_GPU"::Bool = false                                         # Option to use GPU acceleration using PyTroch libraries.
         "use_CAC"::Bool = true                                          # Option to select CAC or AHC solver for no external field.
         "chosen_device"::Any = nothing # torch.device("cpu")            # Device used for torch-based computations.
     end
 end
+
+QUBODrivers.supports_seed(::Type{<:Optimizer}) = false
+QUBODrivers.honors_final_reads(::Type{<:Optimizer}) = true
+QUBODrivers.enforces_time_limit(::Type{<:Optimizer}) = false
 
 function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
     _, h, J, α, β, _, _ = QUBOTools.ising(sampler, :dense; sense = :min)
@@ -81,7 +105,9 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
     model = co_si.Ising(J, h)
 
     # Retrieve attributes
-    num_runs = MOI.get(sampler, MOI.RawOptimizerAttribute("num_runs"))
+    num_runs = MOI.get(sampler, NumberOfRuns())
+    final_num_reads = something(MOI.get(sampler, QUBODrivers.FinalNumberOfReads()), num_runs)
+    num_samples = min(num_runs, final_num_reads)
 
     if MOI.get(sampler, MOI.Silent())
         MOI.set(sampler, MOI.RawOptimizerAttribute("suppress_statements"), true)
@@ -93,9 +119,9 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
 
     solver = model.solve(;
         target_energy                                   = MOI.get(sampler, MOI.RawOptimizerAttribute("target_energy")),
-        num_runs                                        = MOI.get(sampler, MOI.RawOptimizerAttribute("num_runs")),
+        num_runs                                        = MOI.get(sampler, NumberOfRuns()),
         num_timesteps_per_run                           = MOI.get(sampler, MOI.RawOptimizerAttribute("num_timesteps_per_run")),
-        max_wallclock_time_allowed                      = MOI.get(sampler, MOI.RawOptimizerAttribute("max_wallclock_time_allowed")),
+        max_wallclock_time_allowed                      = MOI.get(sampler, MaxWallclockTimeAllowed()),
         stop_when_target_energy_reached                 = MOI.get(sampler, MOI.RawOptimizerAttribute("stop_when_target_energy_reached")),
         custom_feedback_schedule                        = MOI.get(sampler, MOI.RawOptimizerAttribute("custom_feedback_schedule")),
         custom_pump_schedule                            = MOI.get(sampler, MOI.RawOptimizerAttribute("custom_pump_schedule")),
@@ -134,16 +160,16 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
         return_lowest_energies_found_spin_configuration = MOI.get(sampler, MOI.RawOptimizerAttribute("return_lowest_energies_found_spin_configuration")),
         return_lowest_energy_found_from_each_run        = MOI.get(sampler, MOI.RawOptimizerAttribute("return_lowest_energy_found_from_each_run")),
         return_spin_trajectories_all_runs               = MOI.get(sampler, MOI.RawOptimizerAttribute("return_spin_trajectories_all_runs")),
-        return_number_of_solutions                      = MOI.get(sampler, MOI.RawOptimizerAttribute("return_number_of_solutions")),
+        return_number_of_solutions                      = MOI.get(sampler, ReturnNumberOfSolutions()),
         suppress_statements                             = MOI.get(sampler, MOI.RawOptimizerAttribute("suppress_statements")),
         use_GPU                                         = MOI.get(sampler, MOI.RawOptimizerAttribute("use_GPU")),
         use_CAC                                         = MOI.get(sampler, MOI.RawOptimizerAttribute("use_CAC")),
         chosen_device                                   = something(MOI.get(sampler, MOI.RawOptimizerAttribute("chosen_device")), torch.device("cpu")),
     )
 
-    samples = Vector{Sample{T,Int}}(undef, num_runs)
+    samples = Vector{Sample{T,Int}}(undef, num_samples)
 
-    for i = 1:num_runs
+    for i = 1:num_samples
         spin_config = np.asarray(solver.result["spin_config_all_runs"][i-1]).reshape(-1).tolist()
         ψ = round.(Int, pyconvert(Vector{T}, spin_config))
         λ = α * (pyconvert(T, solver.result["energies"][i-1]) + β)
@@ -151,11 +177,23 @@ function QUBODrivers.sample(sampler::Optimizer{T}) where {T}
         samples[i] = Sample{T}(ψ, λ)
     end
 
-    metadata = Dict{String,Any}(
-        "origin" => "cim-optimizer",
-        "time"   => Dict{String,Any}(
-            "effective" => solver.result["time"]
-        ),
+    effective_time = pyconvert(Float64, solver.result["time"])
+    metadata = QUBODrivers._sampler_metadata(
+        origin                = "CIMOptimizer.jl",
+        algorithm_name        = "Coherent Ising Machine",
+        backend_name          = "cim-optimizer",
+        backend_version       = v"1.0.4",
+        execution_mode        = "simulation",
+        optimizer_iterations  = MOI.get(sampler, MOI.RawOptimizerAttribute("num_timesteps_per_run")),
+        optimizer_evaluations = num_runs,
+        number_of_reads       = num_runs,
+        final_number_of_reads = length(samples),
+        status                = "locally_solved",
+        termination_status    = MOI.LOCALLY_SOLVED,
+    )
+    metadata["time"] = Dict{String,Any}("effective" => effective_time)
+    metadata["cim_optimizer"] = Dict{String,Any}(
+        "time" => Dict{String,Any}("python_solve" => effective_time),
     )
 
     return SampleSet{T}(samples, metadata; sense = :min, domain = :spin)

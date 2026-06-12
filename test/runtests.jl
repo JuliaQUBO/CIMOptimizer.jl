@@ -25,7 +25,7 @@ end
     compat = project["compat"]
 
     @test compat["julia"] == "1.10"
-    @test compat["QUBODrivers"] == "0.5, 0.6"
+    @test compat["QUBODrivers"] == "0.6.1"
 
     ci = read(joinpath(pkgdir(CIMOptimizer), ".github", "workflows", "ci.yml"), String)
     normalized_ci = replace(ci, "\r\n" => "\n")
@@ -57,8 +57,35 @@ end
     @test !any(workflow -> occursin("compathelper", lowercase(workflow)), workflows)
 end
 
+@testset "Typed attributes and capabilities" begin
+    sampler = CIMOptimizer.Optimizer{Float64}()
+
+    @test MOI.supports(sampler, CIMOptimizer.NumberOfRuns())
+    @test MOI.supports(sampler, CIMOptimizer.MaxWallclockTimeAllowed())
+    @test MOI.supports(sampler, CIMOptimizer.ReturnNumberOfSolutions())
+    @test MOI.supports(sampler, QUBODrivers.FinalNumberOfReads())
+    @test !MOI.supports(sampler, QUBODrivers.RandomSeed())
+
+    MOI.set(sampler, CIMOptimizer.NumberOfRuns(), 3)
+    MOI.set(sampler, CIMOptimizer.MaxWallclockTimeAllowed(), 2.5)
+    MOI.set(sampler, CIMOptimizer.ReturnNumberOfSolutions(), 2)
+    MOI.set(sampler, QUBODrivers.FinalNumberOfReads(), 2)
+
+    @test MOI.get(sampler, CIMOptimizer.NumberOfRuns()) == 3
+    @test MOI.get(sampler, MOI.RawOptimizerAttribute("num_runs")) == 3
+    @test MOI.get(sampler, CIMOptimizer.MaxWallclockTimeAllowed()) == 2.5
+    @test MOI.get(sampler, MOI.RawOptimizerAttribute("max_wallclock_time_allowed")) == 2.5
+    @test MOI.get(sampler, CIMOptimizer.ReturnNumberOfSolutions()) == 2
+    @test MOI.get(sampler, MOI.RawOptimizerAttribute("return_number_of_solutions")) == 2
+    @test MOI.get(sampler, QUBODrivers.FinalNumberOfReads()) == 2
+
+    @test !QUBODrivers.supports_seed(CIMOptimizer.Optimizer)
+    @test QUBODrivers.honors_final_reads(CIMOptimizer.Optimizer)
+    @test !QUBODrivers.enforces_time_limit(CIMOptimizer.Optimizer)
+end
+
 @testset "QUBODrivers interface" begin
-    QUBODrivers.test(CIMOptimizer.Optimizer; examples=true) do model
+    QUBODrivers.test(CIMOptimizer.Optimizer; examples=true, benchmark_conformance=true) do model
         MOI.set(model, MOI.Silent(), true)
         MOI.set(model, MOI.RawOptimizerAttribute("hyperparameters_randomtune"), false)
         MOI.set(model, MOI.RawOptimizerAttribute("num_timesteps_per_run"), 10)

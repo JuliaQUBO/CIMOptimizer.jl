@@ -4,13 +4,14 @@ authors = ["pedromxavier <pedrox@cos.ufrj.br>", "David E. Bernal Neira <dbernaln
 version = "0.2.0"
 
 [deps]
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 QUBODrivers = "a3f166f7-2cd3-47b6-9e1e-6fbfe0449eb0"
 
 [compat]
 PythonCall = "0.9"
-QUBODrivers = "0.5, 0.6"
+QUBODrivers = "0.6.1"
 julia = "1.10"
 
 [extras]
