@@ -25,7 +25,7 @@ end
     @test haskey(conda["deps"], "pytorch-cpu")
     @test !haskey(conda["deps"], "numpy")
     @test !haskey(pip_deps, "torch")
-    @test conda["deps"]["python"] == ">=3.8,<3.12"
+    @test conda["deps"]["python"] == ">=3.10,<3.12"
 end
 
 @testset "Julia support policy" begin
@@ -33,6 +33,7 @@ end
     compat = project["compat"]
 
     @test compat["julia"] == "1.10"
+    @test compat["CondaPkg"] == "0.2"
     @test compat["QUBODrivers"] == "0.6.1"
 
     ci = read(joinpath(pkgdir(CIMOptimizer), ".github", "workflows", "ci.yml"), String)

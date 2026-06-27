@@ -14,7 +14,7 @@ julia> using CIMOptimizer
 ## Python runtime compatibility
 
 `CIMOptimizer` uses PythonCall and CondaPkg to install `cim-optimizer ==1.0.4`
-with conda `pytorch-cpu`. The CondaPkg runtime supports Python `>=3.8,<3.12`,
+with conda `pytorch-cpu`. The CondaPkg runtime supports Python `>=3.10,<3.12`,
 including Python 3.11 for shared benchmark environments with `DWave v0.7.2`.
 
 `QiskitOpt v0.7.0` currently requires an isolated Python environment when used
