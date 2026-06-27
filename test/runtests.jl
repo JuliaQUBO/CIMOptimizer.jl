@@ -1,8 +1,14 @@
+using CondaPkg
 using Pkg
 using TOML
 using Test
 
-using CIMOptimizer: CIMOptimizer, MOI, QUBODrivers
+@testset "CondaPkg runtime smoke" begin
+    CondaPkg.resolve()
+    @eval using CIMOptimizer: CIMOptimizer, MOI, QUBODrivers
+
+    @test isdefined(CIMOptimizer, :Optimizer)
+end
 
 @testset "Package metadata" begin
     project = TOML.parsefile(joinpath(pkgdir(CIMOptimizer), "Project.toml"))
@@ -17,7 +23,9 @@ end
     pip_deps = get(get(conda, "pip", Dict{String,Any}()), "deps", Dict{String,Any}())
 
     @test haskey(conda["deps"], "pytorch-cpu")
+    @test !haskey(conda["deps"], "numpy")
     @test !haskey(pip_deps, "torch")
+    @test conda["deps"]["python"] == ">=3.8,<3.12"
 end
 
 @testset "Julia support policy" begin

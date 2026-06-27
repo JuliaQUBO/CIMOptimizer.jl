@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Widened the CondaPkg Python runtime bound to include Python 3.11.
+- Added a CondaPkg resolve and `CIMOptimizer` import smoke test.
+- Documented the remaining QiskitOpt shared-environment NumPy constraint.
+
 ## v0.2.1 - 2026-06-12
 
 - Updated QUBODrivers compatibility to 0.6.1 for QUBO.jl v0.6 ecosystem resolution.

@@ -11,6 +11,16 @@ julia> import Pkg; Pkg.add(url="https://github.com/JuliaQUBO/CIMOptimizer.jl")
 julia> using CIMOptimizer
 ```
 
+## Python runtime compatibility
+
+`CIMOptimizer` uses PythonCall and CondaPkg to install `cim-optimizer ==1.0.4`
+with conda `pytorch-cpu`. The CondaPkg runtime supports Python `>=3.8,<3.12`,
+including Python 3.11 for shared benchmark environments with `DWave v0.7.2`.
+
+`QiskitOpt v0.7.0` currently requires an isolated Python environment when used
+alongside `CIMOptimizer`. Its PyPI `numpy ~=2.2.0` constraint conflicts with the
+conda NumPy version pinned by the `pytorch-cpu` stack used here.
+
 ## Getting started
 ```julia
 using JuMP
