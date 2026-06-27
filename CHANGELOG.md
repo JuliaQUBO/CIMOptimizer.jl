@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.2.2 - 2026-06-27
 
 - Widened the CondaPkg Python runtime bound to include Python 3.11.
 - Added a CondaPkg resolve and `CIMOptimizer` import smoke test.
