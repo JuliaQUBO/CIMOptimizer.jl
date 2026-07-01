@@ -3,6 +3,21 @@ using Pkg
 using TOML
 using Test
 
+function find_supported_workflow_action(ci::AbstractString, action::AbstractString, minimum_major::Integer)
+    pattern = Regex(
+        "(?m)^\\s*-\\s+uses:\\s*[\"']?" *
+        action *
+        "@v([1-9][0-9]*)(?:\\.[0-9]+)*[\"']?\\s*\$",
+    )
+    m = match(pattern, ci)
+    m === nothing && return nothing
+
+    major = parse(Int, m.captures[1])
+    major >= minimum_major || return nothing
+
+    return m.offset:(m.offset + ncodeunits(m.match) - 1)
+end
+
 @testset "CondaPkg runtime smoke" begin
     CondaPkg.resolve()
     @eval using CIMOptimizer: CIMOptimizer, MOI, QUBODrivers
@@ -43,14 +58,17 @@ end
     @test compat["julia"] in ci_versions
     @test "1" in ci_versions
 
-    setup = findfirst("julia-actions/setup-julia@v3", ci)
-    cache = findfirst("julia-actions/cache@v3", ci)
-    buildpkg = findfirst("julia-actions/julia-buildpkg@v1", ci)
+    setup = find_supported_workflow_action(ci, "julia-actions/setup-julia", 3)
+    cache = find_supported_workflow_action(ci, "julia-actions/cache", 3)
+    buildpkg = find_supported_workflow_action(ci, "julia-actions/julia-buildpkg", 1)
 
     @test setup !== nothing
     @test cache !== nothing
     @test buildpkg !== nothing
     @test last(setup) < first(cache) < first(buildpkg)
+    @test find_supported_workflow_action("- uses: julia-actions/setup-julia@v4\n", "julia-actions/setup-julia", 3) !== nothing
+    @test find_supported_workflow_action("- uses: julia-actions/setup-julia@v2\n", "julia-actions/setup-julia", 3) === nothing
+    @test find_supported_workflow_action("- uses: julia-actions/setup-julia@latest\n", "julia-actions/setup-julia", 3) === nothing
     @test occursin(r"(?m)^permissions:\n\s+actions:\s*write\n\s+contents:\s*read", normalized_ci)
 end
 
