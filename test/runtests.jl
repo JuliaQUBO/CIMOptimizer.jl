@@ -3,6 +3,8 @@ using Pkg
 using TOML
 using Test
 
+_compat_entries(value::AbstractString) = strip.(split(value, ','))
+
 function find_supported_workflow_action(ci::AbstractString, action::AbstractString, minimum_major::Integer)
     pattern = Regex(
         "(?m)^\\s*-\\s+uses:\\s*[\"']?" *
@@ -48,8 +50,8 @@ end
     compat = project["compat"]
 
     @test compat["julia"] == "1.10"
-    @test compat["CondaPkg"] == "0.2"
-    @test compat["QUBODrivers"] == "0.6.1"
+    @test "0.2" in _compat_entries(compat["CondaPkg"])
+    @test "0.6.1" in _compat_entries(compat["QUBODrivers"])
 
     ci = read(joinpath(pkgdir(CIMOptimizer), ".github", "workflows", "ci.yml"), String)
     normalized_ci = replace(ci, "\r\n" => "\n")
