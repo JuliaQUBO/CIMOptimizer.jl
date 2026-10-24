@@ -1,0 +1,73 @@
+cff-version: 1.2.0
+message: >-
+  If you use CIMOptimizer.jl, cite this wrapper using this metadata. Also cite
+  the upstream cim-optimizer software and Coherent Ising Machine papers when
+  using its simulator, as described in the README.
+title: "CIMOptimizer.jl"
+type: software
+authors:
+  - family-names: "Maciel Xavier"
+    given-names: "Pedro"
+    affiliation: "Purdue University"
+    orcid: "https://orcid.org/0000-0002-4678-4942"
+  - family-names: "Bernal Neira"
+    given-names: "David E."
+    affiliation: "Purdue University"
+    orcid: "https://orcid.org/0000-0002-8308-5016"
+abstract: >-
+  A JuMP and QUBODrivers interface for the McMahon Lab cim-optimizer Coherent
+  Ising Machine simulator.
+repository-code: "https://github.com/JuliaQUBO/CIMOptimizer.jl"
+license: MIT
+version: "0.2.2"
+date-released: 2026-06-27
+doi: "10.5281/zenodo.8021079"
+keywords:
+  - Julia
+  - Coherent Ising Machine
+  - quadratic unconstrained binary optimization
+  - Ising model
+  - QUBO
+references:
+  - type: software
+    title: "cim-optimizer: a simulator of the Coherent Ising Machine"
+    authors:
+      - family-names: "Chen"
+        given-names: "Francis"
+      - family-names: "Isakov"
+        given-names: "Brian"
+      - family-names: "King"
+        given-names: "Tyler"
+      - family-names: "Leleu"
+        given-names: "Timothée"
+      - family-names: "McMahon"
+        given-names: "Peter"
+      - family-names: "Onodera"
+        given-names: "Tatsuhiro"
+    year: 2022
+    repository-code: "https://github.com/mcmahon-lab/cim-optimizer"
+    scope: >-
+      Cite this upstream project when using the underlying cim-optimizer
+      simulator.
+  - type: article
+    title: >-
+      QUBO.jl: A Julia Ecosystem for Quadratic Unconstrained Binary
+      Optimization
+    authors:
+      - family-names: "Maciel Xavier"
+        given-names: "Pedro"
+      - family-names: "Ripper"
+        given-names: "Pedro"
+      - family-names: "Andrade"
+        given-names: "Tiago"
+      - family-names: "Dias Garcia"
+        given-names: "Joaquim"
+      - family-names: "Maculan"
+        given-names: "Nelson"
+      - family-names: "Bernal Neira"
+        given-names: "David E."
+    journal: "Optimization Methods and Software"
+    year: 2026
+    doi: "10.1080/10556788.2026.2702926"
+    scope: >-
+      Cite this work for general use of the JuliaQUBO ecosystem.

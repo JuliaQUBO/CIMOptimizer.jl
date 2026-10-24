@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added validated citation metadata (`CITATION.cff`), wrapper/upstream citation
+  guidance, and a release checklist for detecting Zenodo archival drift.
+
 ## v0.2.2 - 2026-06-27
 
 - Widened the CondaPkg Python runtime bound to include Python 3.11.
