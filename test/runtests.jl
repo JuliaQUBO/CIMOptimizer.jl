@@ -122,3 +122,5 @@ end
         MOI.set(model, MOI.RawOptimizerAttribute("return_spin_trajectories_all_runs"), false)
     end
 end
+
+include("citation.jl")
