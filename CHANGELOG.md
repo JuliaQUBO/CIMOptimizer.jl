@@ -1,9 +1,11 @@
 # Changelog
 
-## Unreleased
+## v0.2.3 - 2026-10-25
 
 - Added validated citation metadata (`CITATION.cff`), wrapper/upstream citation
-  guidance, and a release checklist for detecting Zenodo archival drift.
+  guidance, and a release checklist for detecting Zenodo archival drift (#30, #35).
+- Hardened compatibility metadata tests and Dependabot auto-merge automation (#27, #32, #34).
+- Disabled unused coverage instrumentation in CI (#28, #29).
 
 ## v0.2.2 - 2026-06-27
 

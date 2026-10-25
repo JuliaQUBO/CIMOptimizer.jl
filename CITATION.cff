@@ -19,8 +19,8 @@ abstract: >-
   Ising Machine simulator.
 repository-code: "https://github.com/JuliaQUBO/CIMOptimizer.jl"
 license: MIT
-version: "0.2.2"
-date-released: 2026-06-27
+version: "0.2.3"
+date-released: 2026-10-25
 doi: "10.5281/zenodo.8021079"
 keywords:
   - Julia
