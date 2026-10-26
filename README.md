@@ -55,10 +55,10 @@ the evergreen software identifier and resolves to the latest archived wrapper
 release. Citation metadata is available in [`CITATION.cff`](CITATION.cff).
 
 For exact-version reproducibility, cite the Zenodo version DOI recorded in that
-GitHub release and Zenodo record. For example, the initial archived Zenodo
+GitHub release and Zenodo record. For example, the latest archived Zenodo
 record under this concept is
-[10.5281/zenodo.8021080](https://doi.org/10.5281/zenodo.8021080)
-(`v0.1.0+zenodo`).
+[10.5281/zenodo.23653600](https://doi.org/10.5281/zenodo.23653600)
+(`v0.2.3`).
 
 This wrapper depends on the separately maintained upstream
 [`cim-optimizer` project](https://github.com/mcmahon-lab/cim-optimizer) from
