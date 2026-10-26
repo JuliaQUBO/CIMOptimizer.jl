@@ -39,7 +39,12 @@ end
     conda = TOML.parsefile(joinpath(pkgdir(CIMOptimizer), "CondaPkg.toml"))
     pip_deps = get(get(conda, "pip", Dict{String,Any}()), "deps", Dict{String,Any}())
 
+    @test conda["channels"] == ["conda-forge"]
     @test haskey(conda["deps"], "pytorch-cpu")
+    @test conda["deps"]["pytorch-cpu"] == Dict(
+        "version" => ">=2.0.1,<2.6",
+        "build" => "^(cpu_generic|cpu_mkl_h8b52ce0)_.*\$",
+    )
     @test !haskey(conda["deps"], "numpy")
     @test !haskey(pip_deps, "torch")
     @test conda["deps"]["python"] == ">=3.10,<3.12"
