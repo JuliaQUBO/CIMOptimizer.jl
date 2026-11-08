@@ -1,7 +1,7 @@
 channels = ["conda-forge"]
 
 [deps]
-python = ">=3.10,<3.12"
+python = ">=3.11,<3.12"
 pytorch-cpu = { version = ">=2.0.1,<2.6", build = "^(cpu_generic|cpu_mkl_h8b52ce0)_.*$" }
 
 [pip.deps]

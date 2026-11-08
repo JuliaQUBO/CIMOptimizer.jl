@@ -47,7 +47,7 @@ end
     )
     @test !haskey(conda["deps"], "numpy")
     @test !haskey(pip_deps, "torch")
-    @test conda["deps"]["python"] == ">=3.10,<3.12"
+    @test conda["deps"]["python"] == ">=3.11,<3.12"
 end
 
 @testset "Julia support policy" begin
